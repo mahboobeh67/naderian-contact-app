@@ -10,7 +10,7 @@ function Contact({ contacts, setContacts }) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [modal, setModal] = useState({ show: false, type: "", targetId: null });
-  const [errors, setErrors] = useState({});
+ 
 
   const [contact, setContact] = useState({
     id: "",
@@ -19,11 +19,46 @@ function Contact({ contacts, setContacts }) {
     email: "",
     phone: "",
   });
+const [errors, setErrors] = useState({
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+});
+const validateField = (name, value) => {
+  let message = "";
+
+  switch (name) {
+    case "firstName":
+    case "lastName":
+      if (!value.trim()) message = "نام نمی‌تواند خالی باشد.";
+      break;
+
+    case "email":
+      if (!value.trim()) message = "ایمیل الزامی است.";
+      else if (!/\S+@\S+\.\S+/.test(value))
+        message = "ایمیل واردشده معتبر نیست.";
+      break;
+
+    case "phone":
+      if (!value.trim()) message = "شماره تلفن الزامی است.";
+      else if (!/^09\d{9}$/.test(value))
+        message = "شماره باید با 09 شروع شده و 11 رقم باشد.";
+      break;
+
+    default:
+      break;
+  }
+
+  setErrors((prev) => ({ ...prev, [name]: message }));
+};
 
   const changeHandler = (event) => {
-    const { name, value } = event.target;
-    setContact((contact) => ({ ...contact, [name]: value }));
-  };
+  const { name, value } = event.target;
+  setContact((contact) => ({ ...contact, [name]: value }));
+  validateField(name, value);
+};
+
   const validate = () => {
     const newErrors = {};
 
@@ -117,6 +152,11 @@ function Contact({ contacts, setContacts }) {
     }
     setModal({ show: false, type: "", targetId: null });
   };
+const isFormValid = Object.values(errors).every((err) => err === "") &&
+  contact.firstName &&
+  contact.lastName &&
+  contact.email &&
+  contact.phone;
 
   return (
     <div className={styles.container}>
@@ -150,21 +190,23 @@ function Contact({ contacts, setContacts }) {
 
       <div className={styles.form}>
         {inputs.map((input, index) => (
-          <div key={index} className={styles.inputWrapper}>
-            <input
-              type={input.type}
-              placeholder={input.placeholder}
-              name={input.name}
-              value={contact[input.name]}
-              onChange={changeHandler}
-            />
-            {errors[input.name] && (
-              <p className={styles.error}>{errors[input.name]}</p>
-            )}
-          </div>
+         <div key={index} className={styles.inputGroup}>
+  <input
+    type={input.type}
+    placeholder={input.placeholder}
+    name={input.name}
+    value={contact[input.name]}
+    onChange={changeHandler}
+    className={errors[input.name] ? styles.inputError : ""}
+  />
+  {errors[input.name] && (
+    <span className={styles.errorText}>{errors[input.name]}</span>
+  )}
+</div>
+
         ))}
 
-        <button onClick={addHandler}>
+        <button onClick={addHandler} disabled={!isFormValid}>
           {editingId ? "Update Contact" : "Add Contact"}
         </button>
         {selectedIds.length > 0 && (

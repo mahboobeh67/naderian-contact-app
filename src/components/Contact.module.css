@@ -130,3 +130,40 @@
   margin-top: 4px;
   text-align: right;
 }
+.inputError {
+  border: 2px solid #ff4d4f; /* قرمز نرم و زیبا */
+  background-color: #fff6f6; /* زمینه‌ی خیلی کم‌رنگ قرمز */
+  transition: all 0.2s ease;
+}
+
+.inputError:focus {
+  outline: none;
+  border-color: #ff1f3a;
+  box-shadow: 0 0 4px rgba(255, 50, 50, 0.4);
+}
+.inputGroup {
+  width: 45%;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputError {
+  border: 2px solid #ff4d4f;
+  background-color: #fff6f6;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+@media (max-width: 500px) {
+  .inputGroup {
+    width: 90%;
+  }
+}
+.form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
