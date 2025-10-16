@@ -59,3 +59,13 @@
     width: 90%;
   }
 }
+.search {
+  width: 90%;
+  margin: 10px 0 20px;
+  height: 40px;
+  padding: 10px;
+  border: 2px solid #eaeaea;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #304fff;
+}
