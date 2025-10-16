@@ -4,16 +4,16 @@ function ContactItem({
   data: { id, firstName, lastName, email, phone },
   deleteHandler,
   editHandler,
-  isSelected, toggleSelect,
-} ) {
+  isSelected,
+  toggleSelect,
+}) {
   return (
     <li className={styles.item}>
       <input
-  type="checkbox"
-   checked={isSelected}
-  onChange={() => toggleSelect(id)}
-
-/>
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => toggleSelect(id)}
+      />
 
       <div className={styles.info}>
         <p className={styles.name}>

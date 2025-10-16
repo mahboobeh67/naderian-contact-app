@@ -21,7 +21,7 @@ function ContactList({
               deleteHandler={deleteHandler}
               editHandler={editHandler}
               isSelected={selectedIds.includes(contact.id)}
-              toggleSelect={() => toggleSelect(contact.id)}
+              toggleSelect={toggleSelect} // فقط یک بار پاس شد
             />
           ))}
         </ul>
