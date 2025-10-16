@@ -1,8 +1,13 @@
 import ContactItem from "./ContactItem";
 import styles from "./ContactList.module.css";
 
-function ContactList({ contacts, deleteHandler, editHandler }) {
-  
+function ContactList({
+  contacts,
+  deleteHandler,
+  editHandler,
+  selectedIds,
+  toggleSelect,
+}) {
   return (
     <div className={styles.container}>
       <h3>📒 لیست مخاطبین</h3>
@@ -15,6 +20,8 @@ function ContactList({ contacts, deleteHandler, editHandler }) {
               data={contact}
               deleteHandler={deleteHandler}
               editHandler={editHandler}
+              isSelected={selectedIds.includes(contact.id)}
+              toggleSelect={() => toggleSelect(contact.id)}
             />
           ))}
         </ul>
