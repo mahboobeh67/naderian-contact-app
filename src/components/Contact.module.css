@@ -3,45 +3,7 @@
   flex-direction: column;
   align-items: center;
 }
-.form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 20px;
-  box-shadow: #304ffe25 0px 7px 29px 0px;
-  
 
-}
-.form input {
-  width: 91%;
-  margin: 10px;
-  height: 40px;
-  padding: 10px;
-  border: 2px solid #eaeaea;
-  border-radius: 10px;
-  color: #304fff;
-  font-size: 1rem;
-  gap: 12px;
-}
-.form button {
-  width: calc(90% + 20px);
-  height: 40px;
-  padding: 10px;
-  margin: 10px 0;
-  cursor: pointer;
-  background-color: #304fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  color: #fff;
-  transition: 0.2s all ease-in-out;
-}
-.form button:hover {
-  box-shadow: #0c2ad487 0px 7px 29px 0px;
-}
 
 .alert {
   width: 100%;
@@ -73,94 +35,8 @@
   font-size: 1rem;
   color: #304fff;
 }
-.modalBackdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease forwards;
-}
 
-.modal {
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  animation: popUp 0.3s ease forwards;
-  transform-origin: center;
-}
 
-.modal p {
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-.modalActions {
-  display: flex;
-  justify-content: space-around;
-}
-
-.confirm {
-  background-color: #f33466;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.cancel {
-  background-color: #ccc;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.inputWrapper {
-  width: 45%;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  
-}
-
-.error {
-  color: #f33466;
-  font-size: 0.85rem;
-  margin-top: 4px;
-  text-align: right;
-}
-.inputError {
-  border: 2px solid #ff4d4f; /* قرمز نرم و زیبا */
-  background-color: #fff6f6; /* زمینه‌ی خیلی کم‌رنگ قرمز */
-  transition: all 0.2s ease;
-}
-
-.inputError:focus {
-  outline: none;
-  border-color: #ff1f3a;
-  box-shadow: 0 0 4px rgba(255, 50, 50, 0.4);
-}
-.inputGroup {
-  width: 45%;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.errorText {
-  color: #ff4d4f;
-  font-size: 0.8rem;
-  margin-top: 4px;
-}
 @media (max-width: 500px) {
   .inputGroup {
     width: 90%;

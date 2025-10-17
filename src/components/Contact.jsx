@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import ContactList from "./ContactList";
-import inputs from "../constants/inputs";
 import { v4 } from "uuid";
+import Modal from "./Modal";
 import styles from "./Contact.module.css";
+import ContactForm from "./ContactForm";
 
 function Contact() {
   const [contacts, setContacts] = useState(() => {
@@ -37,8 +38,7 @@ function Contact() {
 
   // بارگذاری مخاطبین از Local Storage هنگام لود صفحه
   useEffect(() => {
-     localStorage.getItem("contacts", JSON.stringify(contacts));
-    
+    localStorage.getItem("contacts", JSON.stringify(contacts));
   }, [contacts]);
 
   // ذخیره مخاطبین در Local Storage بعد از هر تغییر
@@ -87,7 +87,8 @@ function Contact() {
   const validate = () => {
     const newErrors = {};
     if (!contact.firstName.trim()) newErrors.firstName = "نام الزامی است";
-    if (!contact.lastName.trim()) newErrors.lastName = "نام خانوادگی الزامی است";
+    if (!contact.lastName.trim())
+      newErrors.lastName = "نام خانوادگی الزامی است";
     if (!contact.email.trim()) newErrors.email = "ایمیل الزامی است";
     else if (!/\S+@\S+\.\S+/.test(contact.email))
       newErrors.email = "ایمیل واردشده معتبر نیست";
@@ -188,104 +189,38 @@ function Contact() {
     contact.lastName &&
     contact.email &&
     contact.phone;
+  const MODAL_MESSAGES = {
+    single: "آیا از حذف این مخاطب مطمئن هستید؟",
+    bulk: "آیا از حذف مخاطبین انتخاب‌شده مطمئن هستید؟",
+    edit: "آیا می‌خواهید تغییرات را ذخیره کنید؟",
+  };
+const handleFormChange = (name, value, errorMessage) => {
+  setContact((prev) => ({ ...prev, [name]: value }));
+  setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+};
 
   return (
     <div className={styles.container}>
-      {/* مودال */}
-      {modal.show && (
-        <div className={styles.modalBackdrop}>
-          <div className={styles.modal}>
-            {modal.type === "single" && (
-              <>
-                <p>آیا از حذف این مخاطب مطمئن هستید؟</p>
-                <div className={styles.modalActions}>
-                  <button className={styles.confirm} onClick={confirmDelete}>
-                    بله، حذف کن
-                  </button>
-                  <button
-                    className={styles.cancel}
-                    onClick={() =>
-                      setModal({ show: false, type: "", targetId: null })
-                    }
-                  >
-                    انصراف
-                  </button>
-                </div>
-              </>
-            )}
-
-            {modal.type === "bulk" && (
-              <>
-                <p>آیا از حذف مخاطبین انتخاب‌شده مطمئن هستید؟</p>
-                <div className={styles.modalActions}>
-                  <button className={styles.confirm} onClick={confirmDelete}>
-                    بله، حذف کن
-                  </button>
-                  <button
-                    className={styles.cancel}
-                    onClick={() =>
-                      setModal({ show: false, type: "", targetId: null })
-                    }
-                  >
-                    انصراف
-                  </button>
-                </div>
-              </>
-            )}
-
-            {modal.type === "edit" && (
-              <>
-                <p>آیا می‌خواهید تغییرات را ذخیره کنید؟</p>
-                <div className={styles.modalActions}>
-                  <button className={styles.confirm} onClick={confirmEdit}>
-                    بله، ذخیره کن
-                  </button>
-                  <button
-                    className={styles.cancel}
-                    onClick={() =>
-                      setModal({ show: false, type: "", targetId: null })
-                    }
-                  >
-                    انصراف
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <Modal
+        show={modal.show}
+        message={MODAL_MESSAGES[modal.type]}
+        onConfirm={modal.type === "edit" ? confirmEdit : confirmDelete}
+        onCancel={() => setModal({ show: false, type: "", targetId: null })}
+      />
 
       {/* فرم اضافه/ویرایش */}
-      <div className={styles.form}>
-        {inputs.map((input, index) => (
-          <div key={index} className={styles.inputGroup}>
-            <input
-              type={input.type}
-              placeholder={input.placeholder}
-              name={input.name}
-              value={contact[input.name]}
-              onChange={changeHandler}
-              className={errors[input.name] ? styles.inputError : ""}
-            />
-            {errors[input.name] && (
-              <span className={styles.errorText}>{errors[input.name]}</span>
-            )}
-          </div>
-        ))}
+<ContactForm
+  contact={contact}
+  errors={errors}
+  onChange={handleFormChange}
+  saveHandler={saveHandler}
+  isFormValid={isFormValid}
+  editingId={editingId}
+  selectedIds={selectedIds}
+  bulkDeleteHandler={bulkDeleteHandler}
+/>
 
-        <button onClick={saveHandler} disabled={!isFormValid}>
-          {editingId ? "ذخیره تغییرات" : "Add Contact"}
-        </button>
 
-        {selectedIds.length > 0 && (
-          <button
-            onClick={bulkDeleteHandler}
-            className={styles.bulkDelete}
-          >
-            🗑️ حذف {selectedIds.length} مخاطب انتخاب‌شده
-          </button>
-        )}
-      </div>
 
       {/* پیام‌ها */}
       <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
