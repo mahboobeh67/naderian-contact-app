@@ -1,26 +1,33 @@
-.container{
-    width: 100%;
-    margin-bottom: 100px;
+.container {
+  width: 100%;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.container h3{
-    color: #304ffe;
-    font-size: 1.5rem;
+
+
+.container h3 {
+  color: #304ffe;
+  font-size: 1.5rem;
+  text-align: center;
 }
-.contacts{
-    border: 2px solid #f5f5f5;
-    list-style: none;
-    margin-top: 20px;
-    padding: 5px;
-    border-radius: 15px;
+
+
+.container ul {
+  display: flex;
+  flex-wrap: wrap;   
+  justify-content: center;
+  list-style: none;
+  gap: 15px;
+  width: 100%;
+  max-width: 900px;    
+  padding: 0;
+  margin-top: 20px;
 }
-.message{
-    background-color: #f5f5f5;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-    margin-top: 20px;
-    border-radius: 20px;
-    color: #6b6b6f;
-    font-weight: 500px;
-    font-size: 1.2rem;
+
+.container ul li {
+  flex: 1 1 270px;
+  max-width: 450px;
+  padding: 5px;
 }
