@@ -1,0 +1,40 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  font-size: 22px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.gray {
+  background: linear-gradient(90deg, #1b5e20, #43a047);
+  color: #fff;
+  
+}
+.gray:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(27, 94, 32, 0.4);
+}
+
+.golden {
+  background: linear-gradient(90deg, #cfa236, #ffcc80);
+  color: #f2eceb;
+  font-size: small;
+}
+.golden:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(207, 162, 54, 0.4);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ 
+}

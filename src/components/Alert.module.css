@@ -1,0 +1,49 @@
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 12px;
+  padding: 14px 22px;
+  min-width: 300px;
+  font-family: "Vazir", sans-serif;
+  font-size: 1rem;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  animation: slideDown 0.4s ease;
+  z-index: 2000;
+  text-align: center;
+}
+
+.success {
+  background: linear-gradient(90deg, #1b5e20, #43a047);
+}
+
+.warning {
+  background: linear-gradient(90deg, #cfa236, #ffcc80);
+  color: #3e2723;
+}
+
+.error {
+  background: linear-gradient(90deg, #973d3d, #ef5350);
+}
+
+.info {
+  background: linear-gradient(90deg, #00695c, #26a69a);
+}
+
+.alert.fadeOut {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}

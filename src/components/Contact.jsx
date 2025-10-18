@@ -4,12 +4,16 @@ import { v4 } from "uuid";
 import Modal from "./Modal";
 import styles from "./Contact.module.css";
 import ContactForm from "./ContactForm";
+import Alert from "./Alert";
 
-function Contact() {
-  const [contacts, setContacts] = useState(() => {
-    const savedContacts = localStorage.getItem("contacts");
-    return savedContacts ? JSON.parse(savedContacts) : [];
-  });
+function Contact({
+  contacts,
+  setContacts,
+  onDelete,
+  showForm,
+  setShowForm,
+  selectMode,
+}) {
   const [alert, setAlert] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -36,17 +40,12 @@ function Contact() {
 
   const [editingId, setEditingId] = useState(null);
 
-  // بارگذاری مخاطبین از Local Storage هنگام لود صفحه
-  useEffect(() => {
-    localStorage.getItem("contacts", JSON.stringify(contacts));
-  }, [contacts]);
-
-  // ذخیره مخاطبین در Local Storage بعد از هر تغییر
+  // 🧩 ذخیره مخاطبین در LocalStorage هر بار که تغییر می‌کنند
   useEffect(() => {
     localStorage.setItem("contacts", JSON.stringify(contacts));
   }, [contacts]);
 
-  // پاک کردن خودکار alert بعد از 3 ثانیه
+  // 🧩 پاک کردن خودکار پیام هشدار
   useEffect(() => {
     if (alert) {
       const timer = setTimeout(() => setAlert(""), 3000);
@@ -54,41 +53,11 @@ function Contact() {
     }
   }, [alert]);
 
-  // اعتبارسنجی هر فیلد
-  const validateField = (name, value) => {
-    let message = "";
-    switch (name) {
-      case "firstName":
-      case "lastName":
-        if (!value.trim()) message = "نام نمی‌تواند خالی باشد.";
-        break;
-      case "email":
-        if (!value.trim()) message = "ایمیل الزامی است.";
-        else if (!/\S+@\S+\.\S+/.test(value))
-          message = "ایمیل واردشده معتبر نیست.";
-        break;
-      case "phone":
-        if (!value.trim()) message = "شماره تلفن الزامی است.";
-        else if (!/^09\d{9}$/.test(value))
-          message = "شماره باید با 09 شروع شده و 11 رقم باشد.";
-        break;
-      default:
-        break;
-    }
-    setErrors((prev) => ({ ...prev, [name]: message }));
-  };
-
-  const changeHandler = (event) => {
-    const { name, value } = event.target;
-    setContact((c) => ({ ...c, [name]: value }));
-    validateField(name, value);
-  };
-
+  // 🧩 اعتبارسنجی کل فرم
   const validate = () => {
     const newErrors = {};
     if (!contact.firstName.trim()) newErrors.firstName = "نام الزامی است";
-    if (!contact.lastName.trim())
-      newErrors.lastName = "نام خانوادگی الزامی است";
+    if (!contact.lastName.trim()) newErrors.lastName = "نام خانوادگی الزامی است";
     if (!contact.email.trim()) newErrors.email = "ایمیل الزامی است";
     else if (!/\S+@\S+\.\S+/.test(contact.email))
       newErrors.email = "ایمیل واردشده معتبر نیست";
@@ -98,29 +67,55 @@ function Contact() {
     return newErrors;
   };
 
-  // ذخیره تغییرات یا اضافه کردن مخاطب جدید
-  const saveHandler = () => {
-    const formErrors = validate();
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-      setAlert("⚠️ لطفاً خطاهای فرم را برطرف کنید");
-      return;
-    }
+  // 🧩 افزودن یا ویرایش مخاطب
+ // 🧩 افزودن یا ویرایش مخاطب
+const saveHandler = () => {
+  const formErrors = validate();
+  if (Object.keys(formErrors).length > 0) {
+    setErrors(formErrors);
+    setAlert("⚠️ لطفاً خطاهای فرم را برطرف کنید");
+    return;
+  }
 
-    if (editingId) {
-      // باز کردن مودال تایید ویرایش
-      setModal({ show: true, type: "edit", targetId: editingId });
-    } else {
-      // اضافه کردن مخاطب جدید بدون مودال
-      const newContact = { ...contact, id: v4() };
-      setContacts([...contacts, newContact]);
-      setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
-      setErrors({});
-      setAlert("✅ مخاطب جدید اضافه شد!");
-    }
-  };
+  // ✅ بررسی تکراری بودن مخاطب با ایمیل یا شماره تماس
+  const duplicate = contacts.find(
+    (c) =>
+      (c.email === contact.email || c.phone === contact.phone) &&
+      c.id !== editingId // اجازه ویرایش خودش
+  );
 
-  // تایید نهایی ویرایش
+  if (duplicate) {
+    // 🔄 حالت ۱: ادغام اطلاعات جدید با قبلی
+    const merged = {
+      ...duplicate,
+      ...contact, // داده‌های جدید جایگزین شوند
+    };
+
+    const updatedContacts = contacts.map((c) =>
+      c.id === duplicate.id ? merged : c
+    );
+
+    setContacts(updatedContacts);
+    setAlert("🔄 مخاطب تکراری یافت شد؛ اطلاعات به‌روزرسانی شد!");
+    setShowForm(false);
+    setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
+    return;
+  }
+
+  // 🆕 اگر ویرایش نبود و تکراری هم نیست، اضافه کن
+  if (editingId) {
+    setModal({ show: true, type: "edit", targetId: editingId });
+  } else {
+    const newContact = { ...contact, id: v4() };
+    setContacts([...contacts, newContact]);
+    setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
+    setErrors({});
+    setAlert("✅ مخاطب جدید اضافه شد!");
+  }
+};
+
+
+  // 🧩 تایید ویرایش
   const confirmEdit = () => {
     const formErrors = validate();
     if (Object.keys(formErrors).length > 0) {
@@ -140,6 +135,7 @@ function Contact() {
     setAlert("✅ تغییرات مخاطب با موفقیت ذخیره شد!");
   };
 
+  // 🧩 حذف تکی یا گروهی
   const deleteHandler = (id) => {
     setModal({ show: true, type: "single", targetId: id });
   };
@@ -156,15 +152,20 @@ function Contact() {
     setModal({ show: false, type: "", targetId: null });
   };
 
+  // 🧩 ویرایش
   const editHandler = (id) => {
     const editable = contacts.find((c) => c.id === id);
     setContact(editable);
     setEditingId(id);
+    setShowForm(true);
   };
 
+  // 🧩 انتخاب چندتایی
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
     );
   };
 
@@ -176,6 +177,7 @@ function Contact() {
     setModal({ show: true, type: "bulk", targetId: null });
   };
 
+  // 🧩 فیلتر جستجو
   const filteredContacts = contacts.filter((contact) => {
     const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
     const email = contact.email.toLowerCase();
@@ -183,49 +185,55 @@ function Contact() {
     return fullName.includes(term) || email.includes(term);
   });
 
+  // 🧩 بررسی صحت کل فرم
   const isFormValid =
     Object.values(errors).every((err) => err === "") &&
     contact.firstName &&
     contact.lastName &&
     contact.email &&
     contact.phone;
+
   const MODAL_MESSAGES = {
     single: "آیا از حذف این مخاطب مطمئن هستید؟",
     bulk: "آیا از حذف مخاطبین انتخاب‌شده مطمئن هستید؟",
     edit: "آیا می‌خواهید تغییرات را ذخیره کنید؟",
   };
-const handleFormChange = (name, value, errorMessage) => {
-  setContact((prev) => ({ ...prev, [name]: value }));
-  setErrors((prev) => ({ ...prev, [name]: errorMessage }));
-};
+
+  const handleFormChange = (name, value, errorMessage) => {
+    setContact((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+  };
 
   return (
     <div className={styles.container}>
+      {alert && <div className={styles.alert}><p>{alert}</p></div>}
+
       <Modal
         show={modal.show}
         message={MODAL_MESSAGES[modal.type]}
         onConfirm={modal.type === "edit" ? confirmEdit : confirmDelete}
-        onCancel={() => setModal({ show: false, type: "", targetId: null })}
+        onCancel={() => {
+          if (modal.type === "bulk") setSelectedIds([]);
+          setModal({ show: false, type: "", targetId: null });
+        }}
+        type={modal.type}
       />
 
-      {/* فرم اضافه/ویرایش */}
-<ContactForm
-  contact={contact}
-  errors={errors}
-  onChange={handleFormChange}
-  saveHandler={saveHandler}
-  isFormValid={isFormValid}
-  editingId={editingId}
-  selectedIds={selectedIds}
-  bulkDeleteHandler={bulkDeleteHandler}
-/>
+      {/* 🧩 نمایش فرم فقط در صورت نیاز */}
+      {showForm && (
+        <ContactForm
+          contact={contact}
+          errors={errors}
+          onChange={handleFormChange}
+          saveHandler={saveHandler}
+          isFormValid={isFormValid}
+          editingId={editingId}
+          selectedIds={selectedIds}
+          bulkDeleteHandler={bulkDeleteHandler}
+        />
+      )}
 
-
-
-      {/* پیام‌ها */}
-      <div className={styles.alert}>{alert && <p>{alert}</p>}</div>
-
-      {/* جستجو */}
+      {/* 🧩 جستجو */}
       <input
         type="text"
         placeholder="🔍 جستجو بر اساس نام، نام خانوادگی یا ایمیل"
@@ -234,13 +242,14 @@ const handleFormChange = (name, value, errorMessage) => {
         className={styles.search}
       />
 
-      {/* لیست مخاطبین */}
+      {/* 🧩 لیست مخاطبین */}
       <ContactList
         contacts={filteredContacts}
         deleteHandler={deleteHandler}
         editHandler={editHandler}
         selectedIds={selectedIds}
         toggleSelect={toggleSelect}
+        selectMode={selectMode}
       />
     </div>
   );
