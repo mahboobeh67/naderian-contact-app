@@ -3,7 +3,11 @@ import Contact from "./components/Contact.jsx";
 import Header from "./components/Header.jsx";
 
 function App() {
-  const [contacts, setContacts] = useState([]);
+ const [contacts, setContacts] = useState(() => {
+  const saved = localStorage.getItem("contacts");
+  return saved ? JSON.parse(saved) : [];
+});
+
   const [showForm, setShowForm] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
 

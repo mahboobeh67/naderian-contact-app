@@ -21,7 +21,10 @@ function Contact({
     show: false,
     type: "", // "single", "bulk", "edit"
     targetId: null,
-  });
+    
+  }
+
+);
 
   const [contact, setContact] = useState({
     id: "",
@@ -40,10 +43,11 @@ function Contact({
 
   const [editingId, setEditingId] = useState(null);
 
-  // 🧩 ذخیره مخاطبین در LocalStorage هر بار که تغییر می‌کنند
-  useEffect(() => {
-    localStorage.setItem("contacts", JSON.stringify(contacts));
-  }, [contacts]);
+
+
+useEffect(() => {
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+}, [contacts]);
 
   // 🧩 پاک کردن خودکار پیام هشدار
   useEffect(() => {
