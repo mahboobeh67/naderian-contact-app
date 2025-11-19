@@ -1,5 +1,6 @@
 import styles from "./ContactForm.module.css";
-import inputs from "../constants/inputs";
+import inputs from "../../../shared/constants/inputs"
+
 
 function ContactForm({
   contact,

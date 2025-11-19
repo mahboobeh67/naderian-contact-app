@@ -6,14 +6,7 @@ import styles from "./Contact.module.css";
 import ContactForm from "./ContactForm";
 import Alert from "./Alert";
 
-function Contact({
-  contacts,
-  setContacts,
-  onDelete,
-  showForm,
-  setShowForm,
-  selectMode,
-}) {
+function Contact({ contacts, setContacts, showForm, setShowForm, selectMode }) {
   const [alert, setAlert] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -21,10 +14,7 @@ function Contact({
     show: false,
     type: "", // "single", "bulk", "edit"
     targetId: null,
-    
-  }
-
-);
+  });
 
   const [contact, setContact] = useState({
     id: "",
@@ -43,11 +33,9 @@ function Contact({
 
   const [editingId, setEditingId] = useState(null);
 
-
-
-useEffect(() => {
-  localStorage.setItem("contacts", JSON.stringify(contacts));
-}, [contacts]);
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }, [contacts]);
 
   // 🧩 پاک کردن خودکار پیام هشدار
   useEffect(() => {
@@ -61,7 +49,8 @@ useEffect(() => {
   const validate = () => {
     const newErrors = {};
     if (!contact.firstName.trim()) newErrors.firstName = "نام الزامی است";
-    if (!contact.lastName.trim()) newErrors.lastName = "نام خانوادگی الزامی است";
+    if (!contact.lastName.trim())
+      newErrors.lastName = "نام خانوادگی الزامی است";
     if (!contact.email.trim()) newErrors.email = "ایمیل الزامی است";
     else if (!/\S+@\S+\.\S+/.test(contact.email))
       newErrors.email = "ایمیل واردشده معتبر نیست";
@@ -71,53 +60,50 @@ useEffect(() => {
     return newErrors;
   };
 
-  // 🧩 افزودن یا ویرایش مخاطب
- // 🧩 افزودن یا ویرایش مخاطب
-const saveHandler = () => {
-  const formErrors = validate();
-  if (Object.keys(formErrors).length > 0) {
-    setErrors(formErrors);
-    setAlert("⚠️ لطفاً خطاهای فرم را برطرف کنید");
-    return;
-  }
+  const saveHandler = () => {
+    const formErrors = validate();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      setAlert("⚠️ لطفاً خطاهای فرم را برطرف کنید");
+      return;
+    }
 
-  // ✅ بررسی تکراری بودن مخاطب با ایمیل یا شماره تماس
-  const duplicate = contacts.find(
-    (c) =>
-      (c.email === contact.email || c.phone === contact.phone) &&
-      c.id !== editingId // اجازه ویرایش خودش
-  );
-
-  if (duplicate) {
-    // 🔄 حالت ۱: ادغام اطلاعات جدید با قبلی
-    const merged = {
-      ...duplicate,
-      ...contact, // داده‌های جدید جایگزین شوند
-    };
-
-    const updatedContacts = contacts.map((c) =>
-      c.id === duplicate.id ? merged : c
+    // ✅ بررسی تکراری بودن مخاطب با ایمیل یا شماره تماس
+    const duplicate = contacts.find(
+      (c) =>
+        (c.email === contact.email || c.phone === contact.phone) &&
+        c.id !== editingId // اجازه ویرایش خودش
     );
 
-    setContacts(updatedContacts);
-    setAlert("🔄 مخاطب تکراری یافت شد؛ اطلاعات به‌روزرسانی شد!");
-    setShowForm(false);
-    setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
-    return;
-  }
+    if (duplicate) {
+      // 🔄 حالت ۱: ادغام اطلاعات جدید با قبلی
+      const merged = {
+        ...duplicate,
+        ...contact, // داده‌های جدید جایگزین شوند
+      };
 
-  // 🆕 اگر ویرایش نبود و تکراری هم نیست، اضافه کن
-  if (editingId) {
-    setModal({ show: true, type: "edit", targetId: editingId });
-  } else {
-    const newContact = { ...contact, id: v4() };
-    setContacts([...contacts, newContact]);
-    setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
-    setErrors({});
-    setAlert("✅ مخاطب جدید اضافه شد!");
-  }
-};
+      const updatedContacts = contacts.map((c) =>
+        c.id === duplicate.id ? merged : c
+      );
 
+      setContacts(updatedContacts);
+      setAlert("🔄 مخاطب تکراری یافت شد؛ اطلاعات به‌روزرسانی شد!");
+      setShowForm(false);
+      setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
+      return;
+    }
+
+    // 🆕 اگر ویرایش نبود و تکراری هم نیست، اضافه کن
+    if (editingId) {
+      setModal({ show: true, type: "edit", targetId: editingId });
+    } else {
+      const newContact = { ...contact, id: v4() };
+      setContacts([...contacts, newContact]);
+      setContact({ id: "", firstName: "", lastName: "", email: "", phone: "" });
+      setErrors({});
+      setAlert("✅ مخاطب جدید اضافه شد!");
+    }
+  };
 
   // 🧩 تایید ویرایش
   const confirmEdit = () => {
@@ -167,9 +153,7 @@ const saveHandler = () => {
   // 🧩 انتخاب چندتایی
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
@@ -210,7 +194,11 @@ const saveHandler = () => {
 
   return (
     <div className={styles.container}>
-      {alert && <div className={styles.alert}><p>{alert}</p></div>}
+      {alert && (
+        <div className={styles.alert}>
+          <p>{alert}</p>
+        </div>
+      )}
 
       <Modal
         show={modal.show}
