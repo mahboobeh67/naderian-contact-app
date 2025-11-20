@@ -1,75 +1,90 @@
-import styles from "./ContactForm.module.css";
-import inputs from "../../../shared/constants/inputs"
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useContacts } from "../context/ContactsContext";
+import { contactSchema } from "../utils/validateContact";
+import * as actions from "../actions";
 
+export default function ContactForm() {
+  const { state, dispatch } = useContacts();
+  const { currentContact, editingId } = state;
 
-function ContactForm({
-  contact,
-  errors,
-  saveHandler,
-  isFormValid,
-  editingId,
-  selectedIds,
-  bulkDeleteHandler,
-  onChange,
-}) {
-  const validateField = (name, value) => {
-    let message = "";
-    switch (name) {
-      case "firstName":
-      case "lastName":
-        if (!value.trim()) message = "نام نمی‌تواند خالی باشد.";
-        break;
-      case "email":
-        if (!value.trim()) message = "ایمیل الزامی است.";
-        else if (!/\S+@\S+\.\S+/.test(value))
-          message = "ایمیل واردشده معتبر نیست.";
-        break;
-      case "phone":
-        if (!value.trim()) message = "شماره تلفن الزامی است.";
-        else if (!/^09\d{9}$/.test(value))
-          message = "شماره باید با 09 شروع شده و 11 رقم باشد.";
-        break;
-      default:
-        break;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm({
+    resolver: yupResolver(contactSchema),
+    defaultValues: currentContact,
+  });
+
+  // 🎯 وقتی editingId یا currentContact تغییر کنه فرم ریست میشه
+  useEffect(() => {
+    reset(currentContact);
+  }, [currentContact, reset]);
+
+  // 📤 ارسال فرم
+  const onSubmit = async (data) => {
+    if (editingId) {
+      await actions.updateContact(dispatch)({ ...data, id: editingId });
+    } else {
+      await actions.createContact(dispatch)(data);
     }
-    return message;
+    reset();
   };
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const errorMessage = validateField(name, value);
-    onChange(name, value, errorMessage); // به والد اطلاع می‌ده
-  };
+
+  // 🔄 ذخیرهٔ موقت هر تغییر در localStorage (۵۰۰ms delay)
+  useEffect(() => {
+    if (isDirty) {
+      const timer = setTimeout(() => {
+        localStorage.setItem("draftContact", JSON.stringify(currentContact));
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isDirty, currentContact]);
 
   return (
-    <div className={styles.form}>
-      {inputs.map((input, index) => (
-        <div key={index} className={styles.inputGroup}>
-          <input
-            type={input.type}
-            placeholder={input.placeholder}
-            name={input.name}
-            value={contact[input.name]}
-            onChange={handleChange}
-            className={errors[input.name] ? styles.inputError : ""}
-          />
+    <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
+      <div style={styles.inputGroup}>
+        <input {...register("firstName")} placeholder="نام" />
+        <span style={styles.error}>{errors.firstName?.message}</span>
+      </div>
 
-          {errors[input.name] && (
-            <span className={styles.errorText}>{errors[input.name]}</span>
-          )}
-        </div>
-      ))}
+      <div style={styles.inputGroup}>
+        <input {...register("lastName")} placeholder="نام خانوادگی" />
+        <span style={styles.error}>{errors.lastName?.message}</span>
+      </div>
 
-      <button onClick={saveHandler} disabled={!isFormValid}>
-        {editingId ? "ذخیره تغییرات" : "افزودن مخاطب"}
+      <div style={styles.inputGroup}>
+        <input {...register("email")} placeholder="ایمیل" />
+        <span style={styles.error}>{errors.email?.message}</span>
+      </div>
+
+      <div style={styles.inputGroup}>
+        <input {...register("phone")} placeholder="شماره" />
+        <span style={styles.error}>{errors.phone?.message}</span>
+      </div>
+
+      <button type="submit" style={styles.button}>
+        {editingId ? "ویرایش مخاطب" : "افزودن مخاطب"}
       </button>
-
-      {selectedIds.length > 0 && (
-        <button onClick={bulkDeleteHandler} className={styles.bulkDelete}>
-          🗑️ حذف {selectedIds.length} مخاطب انتخاب‌شده
-        </button>
-      )}
-    </div>
+    </form>
   );
 }
 
-export default ContactForm;
+// 🌸 کمی استایل برای قشنگی
+const styles = {
+  form: { marginBottom: "2rem", display: "flex", flexDirection: "column", gap: "0.5rem" },
+  inputGroup: { display: "flex", flexDirection: "column" },
+  error: { color: "crimson", fontSize: "0.8rem" },
+  button: {
+    marginTop: "0.5rem",
+    background: "#005c55",
+    color: "white",
+    border: "none",
+    padding: "0.5rem 1rem",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+};

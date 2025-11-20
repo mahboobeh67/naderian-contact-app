@@ -1,0 +1,102 @@
+import React, { createContext, useReducer, useContext } from "react";
+
+// ================================
+//          Reducer و State
+// ================================
+import { contactsReducer } from "./contactsReducer";
+import { contactsInitialState } from "./contactsInitialState";
+
+// ================================
+//            Actions
+// ================================
+import * as Actions from "../actions";
+
+// ================================
+//            Context ها
+// ================================
+const ContactsStateContext = createContext(undefined);
+const ContactsDispatchContext = createContext(undefined);
+
+// ================================
+//        Provider اصلی
+// ================================
+export const ContactsProvider = ({ children, onMounted, onSync }) => {
+  const [state, dispatch] = useReducer(
+    contactsReducer,
+    undefined,
+    contactsInitialState // lazy initializer
+  );
+
+  // جهت دسترسی اکشن‌ها به آخرین state (مدل B2)
+  const getState = () => state;
+
+  // ====================================
+  //     اکشن‌هایی با SideEffect
+  // ====================================
+  const actions = {
+    // مدل B2 → side effect قبل از dispatch
+    createContact: Actions.createContact(dispatch, getState),
+    updateContact: Actions.updateContact(dispatch, getState),
+    deleteContact: Actions.deleteContact(dispatch, getState),
+    deleteSelected: Actions.deleteSelected(dispatch, getState),
+
+    // اکشن‌های UI بدون SideEffect
+    ...Actions.uiActions(dispatch),
+  };
+
+  // ================================
+  //   رویداد Mount (فقط بار اول)
+  // ================================
+  React.useEffect(() => {
+    if (typeof onMounted === "function") {
+      onMounted(state);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ================================
+  //   Sync با storage یا سرور
+  // ================================
+  React.useEffect(() => {
+    if (typeof onSync === "function") {
+      onSync(state.contacts);
+    }
+  }, [state.contacts, onSync]);
+
+  return (
+    <ContactsStateContext.Provider value={state}>
+      <ContactsDispatchContext.Provider value={{ dispatch, actions }}>
+        {children}
+      </ContactsDispatchContext.Provider>
+    </ContactsStateContext.Provider>
+  );
+};
+
+// ================================
+//      هوک‌های سفارشی
+// ================================
+export const useContactsState = () => {
+  const ctx = useContext(ContactsStateContext);
+  if (!ctx) throw new Error("❌ useContactsState باید داخل ContactsProvider باشد");
+  return ctx;
+};
+
+export const useContactsDispatch = () => {
+  const ctx = useContext(ContactsDispatchContext);
+  if (!ctx)
+    throw new Error("❌ useContactsDispatch باید داخل ContactsProvider باشد");
+  return ctx;
+};
+
+// برای راحتی ترکیبی
+export const useContacts = () => {
+  const state = useContactsState();
+  const { dispatch, actions } = useContactsDispatch();
+  return { state, dispatch, actions };
+};
+
+// ================================
+//       Export نهایی برای Barrel
+// ================================
+const ContactsContext = createContext();
+export default ContactsContext;

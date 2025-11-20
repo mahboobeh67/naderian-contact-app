@@ -1,4 +1,4 @@
-import { ACTION_TYPES } from "../actionTypes";
+import { ACTION_TYPES } from "./actionTypes";
 
 export const updateCurrentContact = (dispatch) => (field, value) => {
   dispatch({

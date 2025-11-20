@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import ContactList from "./ContactList.jsx";
+import ContactList from "./ContactList";
 import { v4 } from "uuid";
-import Modal from "./Modal.jsx";
+import Modal from "./Modal";
 import styles from "./Contact.module.css";
-import ContactForm from "./ContactForm.jsx";
-import Alert from "./Alert.jsx";
+import ContactForm from "./ContactForm";
+import Alert from "./Alert";
 
 function Contact({ contacts, setContacts, showForm, setShowForm, selectMode }) {
   const [alert, setAlert] = useState("");

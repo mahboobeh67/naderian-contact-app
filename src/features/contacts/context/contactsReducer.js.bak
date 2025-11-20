@@ -1,5 +1,5 @@
-import { ACTION_TYPES } from "./actionTypes.js";
-import { contactsInitialState } from "./contactsInitialState.js";
+import { ACTION_TYPES } from "./actionTypes";
+import { contactsInitialState } from "./contactsInitialState";
 
 
 export const contactsReducer = (state, action) => {

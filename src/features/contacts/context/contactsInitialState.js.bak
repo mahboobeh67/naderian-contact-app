@@ -1,5 +1,5 @@
-import { STORAGE_KEYS } from "../../../storage/storageKeys";
-import { loadStorage } from "../../../storage/storageUtils";
+import { STORAGE_KEYS } from "@/storage/storageKeys";
+import { loadStorage } from "@/storage/storageUtils";
 
 
 export const contactsInitialState = () => ({

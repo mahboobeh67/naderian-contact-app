@@ -1,0 +1,17 @@
+import { STORAGE_KEYS } from "@/storage/storageKeys";
+import { loadStorage, writeStorage } from "@/storage/storageUtils";
+import { ACTION_TYPES } from "../context/actionTypes"; // ✅ مسیر صحیح
+
+export const updateContact = (dispatch) => (contact) => {
+  const current = loadStorage(STORAGE_KEYS.CONTACT_LIST) || [];
+  const updated = current.map((c) => (c.id === contact.id ? contact : c));
+
+  // 🧼 Side‑Effect در مدل B2: ابتدا تمیز کردن storage
+  writeStorage(STORAGE_KEYS.CONTACT_LIST, updated);
+
+  // 🚀 سپس dispatch
+  dispatch({
+    type: ACTION_TYPES.UPDATE_CONTACT_SUCCESS,
+    payload: contact,
+  });
+};

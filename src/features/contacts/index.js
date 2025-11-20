@@ -1,13 +1,11 @@
-// export { createContact } from "./createContact";
-// export { updateContact } from "./updateContact";
-// export { deleteContact } from "./deleteContact";
-// export { deleteSelected } from "./deleteSelected";
-// export * from "./uiActions";
 
-export * from "./context/ContactsContext.jsx";
-export * from "./context/contactsReducer.js";
-export * from "./context/contactsInitialState.js";
-export * from "./context/actionTypes.js";
+// 📘 Context barrel (Provider + Hooks)
+export * from "./context";
 
+// ⚙️ Actions stack (CRUD logic)
+export * from "./actions";
 
-export { ContactsProvider, useContacts } from "./context/ContactsContext.jsx";
+// 🧩 Constants (type codes)
+// export * from "./actionTypes";
+
+export * from "./context/index.js";

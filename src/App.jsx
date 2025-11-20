@@ -1,11 +1,9 @@
-import { ContactsProvider } from "@/features/contacts";
-import ContactList from "@/features/contacts/components/ContactList";
-import ContactForm from "@/features/contacts/components/ContactForm";
-import { Header } from "@/shared/ui";
-
-
-
-
+// src/App.jsx
+import React from "react";
+import { ContactsProvider } from "./features/contacts/context/ContactsContext.jsx";
+import ContactList from "./features/contacts/components/ContactList.jsx";
+import ContactForm from "./features/contacts/components/ContactForm.jsx";
+import { Header } from "./shared/ui/Header.jsx";
 
 const App = () => {
   return (
@@ -20,4 +18,5 @@ const App = () => {
 };
 
 export default App;
+
 

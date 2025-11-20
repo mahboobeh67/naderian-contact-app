@@ -1,4 +1,4 @@
-import { useContacts } from "../context/ContactsContext";
+import { useContacts } from "@/features/contacts/context/ContactsContext";
 
 const ContactItem = ({ contact }) => {
   const { actions } = useContacts();

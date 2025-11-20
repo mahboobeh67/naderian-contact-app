@@ -1,19 +1,12 @@
 import styles from "./Header.module.css";
-import AddButton from "./AddButton.jsx";
+import AddButton from "./AddButton";
 
-export const Header = ({ onAdd, onSelectMode, showForm, selectMode }) => {
+function Header({ onAdd, onSelectMode, showForm, selectMode }) {
   return (
     <div className={styles.container}>
-      <h1>📱 Contact App Created by Mahboobeh Naderian ❤️</h1>
+      <h1>📱Contact App Created by Mahboobeh Naderian❤️</h1>
       <p>
-        <a
-          href="https://github.com/mahboobeh67/Naderian-tab-component"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>{" "}
-        | Contact App built with React.js ⚛️
+        <a href="https://github.com/mahboobeh67/Naderian-tab-component">Github</a> | Contact app created by React.js
       </p>
       <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
         <AddButton
@@ -29,5 +22,7 @@ export const Header = ({ onAdd, onSelectMode, showForm, selectMode }) => {
       </div>
     </div>
   );
-};
+}
+
+export default Header;
 

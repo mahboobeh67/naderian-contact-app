@@ -1,5 +1,5 @@
-import { useContacts } from "../context/ContactsContext";
-import ContactItem from "./ContactItem.jsx";
+import { useContacts } from "@/features/contacts/context/ContactsContext";
+import ContactItem from "./ContactItem";
 
 const ContactList = () => {
   const { state } = useContacts();
