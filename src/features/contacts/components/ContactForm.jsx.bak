@@ -1,62 +1,25 @@
-import { useContacts } from "@/features/contacts/context/ContactsContext";
+import React from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { contactSchema } from "../schema/contactSchema";
+import { InputField } from "./InputField";
 
-const ContactForm = () => {
-  const { state, actions } = useContacts();
-  const { currentContact, errors, editingId } = state;
+export function ContactForm({ onSubmit }) {
+  const methods = useForm({
+    resolver: yupResolver(contactSchema),
+    mode: "onBlur",
+  });
 
-  const handleChange = (e) => {
-    actions.updateCurrentContact(e.target.name, e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (editingId) {
-      actions.updateContact({ ...currentContact, id: editingId });
-    } else {
-      actions.createContact(currentContact);
-    }
-  };
+  const handleSubmit = methods.handleSubmit(onSubmit);
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "2rem" }}>
-      <input
-        name="firstName"
-        placeholder="نام"
-        value={currentContact.firstName}
-        onChange={handleChange}
-      />
-      <span>{errors.firstName}</span>
-
-      <input
-        name="lastName"
-        placeholder="نام خانوادگی"
-        value={currentContact.lastName}
-        onChange={handleChange}
-      />
-      <span>{errors.lastName}</span>
-
-      <input
-        name="email"
-        placeholder="ایمیل"
-        value={currentContact.email}
-        onChange={handleChange}
-      />
-      <span>{errors.email}</span>
-
-      <input
-        name="phone"
-        placeholder="شماره"
-        value={currentContact.phone}
-        onChange={handleChange}
-      />
-      <span>{errors.phone}</span>
-
-      <button type="submit">
-        {editingId ? "ویرایش مخاطب" : "افزودن مخاطب"}
-      </button>
-    </form>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit} className="contact-form">
+        <InputField name="name" label="نام" />
+        <InputField name="phone" label="شماره تماس" />
+        <InputField name="email" label="ایمیل" type="email" />
+        <button type="submit">ثبت تماس</button>
+      </form>
+    </FormProvider>
   );
-};
-
-export default ContactForm;
+}

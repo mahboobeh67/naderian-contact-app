@@ -1,88 +1,68 @@
-// src/features/contacts/context/ContactsContext.jsx
-import React, { createContext, useReducer, useContext, useEffect } from "react";
-import { contactsReducer } from "./contactsReducer.js";
-import { contactsInitialState } from "./contactsInitialState.js";
-import * as Actions from "../actions"; 
+import { createContext, useContext, useReducer, useEffect } from "react";
+import { ContactService } from "../utils/ContactServices";
 
-// ایجاد دو context جدا برای State و Dispatch
-const ContactsStateContext = createContext(undefined);
-const ContactsDispatchContext = createContext(undefined);
-const actions = {
-  createContact: Actions.createContact(dispatch, getState),
-  updateContact: Actions.updateContact(dispatch, getState),
-  deleteContact: Actions.deleteContact(dispatch, getState),
-  deleteSelected: Actions.deleteSelected(dispatch, getState),
-};
+// --- 1️⃣ State & Actions ---
+const initialState = { contacts: [] };
 
-export const ContactsProvider = ({ children, onMounted, onSync }) => {
-  const [state, dispatch] = useReducer(
-    contactsReducer,
-    undefined,
-    contactsInitialState
-  );
-  const getState = () => state;
+function contactsReducer(state, action) {
+  switch (action.type) {
+    case "LOAD_CONTACTS":
+      return { ...state, contacts: action.payload };
+    case "ADD_CONTACT":
+      return { ...state, contacts: [...state.contacts, action.payload] };
+    case "DELETE_CONTACT":
+      return {
+        ...state,
+        contacts: state.contacts.filter((c) => c.id !== action.payload),
+      };
+    default:
+      return state;
+  }
+}
 
-  // ساخت actions با pattern Flux‑B2 (factory binding)
-  const actions = {
-    createContact:
-      typeof Actions.createContact === "function"
-        ? Actions.createContact(dispatch, getState)
-        : console.error("❌ createContact missing from Actions barrel"),
-    updateContact:
-      typeof Actions.updateContact === "function"
-        ? Actions.updateContact(dispatch, getState)
-        : console.error("❌ updateContact missing from Actions barrel"),
-    deleteContact:
-      typeof Actions.deleteContact === "function"
-        ? Actions.deleteContact(dispatch, getState)
-        : console.error("❌ deleteContact missing from Actions barrel"),
-    deleteSelected:
-      typeof Actions.deleteSelected === "function"
-        ? Actions.deleteSelected(dispatch, getState)
-        : console.error("❌ deleteSelected missing from Actions barrel"),
-    ...(typeof Actions.uiActions === "function"
-      ? Actions.uiActions(dispatch)
-      : {}),
-  };
+// --- 2️⃣ Context ها ---
+const ContactsContext = createContext();
+const ContactsDispatchContext = createContext();
 
-  // lifecycle syncing
+// --- 3️⃣ Provider ---
+export function ContactsProvider({ children }) {
+  const [state, dispatch] = useReducer(contactsReducer, initialState);
+
   useEffect(() => {
-    if (typeof onMounted === "function") onMounted(state);
+    const stored = ContactService.getAll(); // ✅ به‌جای load()
+    dispatch({ type: "LOAD_CONTACTS", payload: stored });
   }, []);
+
   useEffect(() => {
-    if (typeof onSync === "function") onSync(state.contacts);
-  }, [state.contacts, onSync]);
+    window.localStorage.setItem("CONTACT_LIST", JSON.stringify(state.contacts));
+  }, [state.contacts]);
 
   return (
-    <ContactsStateContext.Provider value={state}>
-      <ContactsDispatchContext.Provider value={{ dispatch, actions }}>
+    <ContactsContext.Provider value={state}>
+      <ContactsDispatchContext.Provider value={dispatch}>
         {children}
       </ContactsDispatchContext.Provider>
-    </ContactsStateContext.Provider>
+    </ContactsContext.Provider>
   );
-};
+}
 
-// custom hooks
-export const useContactsState = () => {
-  const ctx = useContext(ContactsStateContext);
-  if (!ctx)
-    throw new Error("❌ useContactsState باید داخل ContactsProvider فراخوانی شود");
-  return ctx;
-};
+// --- 4️⃣ Custom Hooks ---
+export function useContacts() {
+  return useContext(ContactsContext);
+}
 
-export const useContactsDispatch = () => {
-  const ctx = useContext(ContactsDispatchContext);
-  if (!ctx)
-    throw new Error("❌ useContactsDispatch باید داخل ContactsProvider فراخوانی شود");
-  return ctx;
-};
+export function useContactsActions() {
+  const dispatch = useContext(ContactsDispatchContext);
 
-export const useContacts = () => {
-  const state = useContactsState();
-  const { dispatch, actions } = useContactsDispatch();
-  return { state, dispatch, actions };
-};
+  const createContact = (data) => {
+    const newOne = ContactService.create(data);
+    dispatch({ type: "ADD_CONTACT", payload: newOne });
+  };
 
-// برای تسهیل تست در موارد خاص
-export { ContactsStateContext, ContactsDispatchContext };
-export default ContactsProvider;
+  const removeContact = (id) => {
+    ContactService.remove(id);
+    dispatch({ type: "DELETE_CONTACT", payload: id });
+  };
+
+  return { createContact, removeContact };
+}

@@ -11,6 +11,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      "@modules": path.resolve(__dirname, "src/modules"),
+      "@forms": path.resolve(__dirname, "src/modules/forms"),
+      "@features": path.resolve(__dirname, "src/features"),
     },
   },
+  server: {
+    port: 5173,
+    open: true,
+  },
 });
+

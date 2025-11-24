@@ -1,90 +1,56 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+// src/features/contacts/ContactForm.jsx
+import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useContacts } from "../context/ContactsContext";
-import { contactSchema } from "../utils/validateContact";
-import * as actions from "../actions";
+import {contactSchema} from "../forms/schema/contactShema.js"  
+import InputField from "./InputFiled.jsx";  // مسیر واحد و درست
+import AddButton from "../../../shared/ui/AddButton.jsx";              // دکمه‌ی هماهنگ با پروژه
+import styles from "./ContactForm.module.css";
 
-export default function ContactForm() {
-  const { state, dispatch } = useContacts();
-  const { currentContact, editingId } = state;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = useForm({
+function ContactForm({ onValid, bulkDeleteHandler, selectedIds }) {
+  const methods = useForm({
+    mode: "onChange",
     resolver: yupResolver(contactSchema),
-    defaultValues: currentContact,
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      age: "",
+    },
   });
 
-  // 🎯 وقتی editingId یا currentContact تغییر کنه فرم ریست میشه
-  useEffect(() => {
-    reset(currentContact);
-  }, [currentContact, reset]);
+  const { handleSubmit, reset } = methods;
 
-  // 📤 ارسال فرم
-  const onSubmit = async (data) => {
-    if (editingId) {
-      await actions.updateContact(dispatch)({ ...data, id: editingId });
-    } else {
-      await actions.createContact(dispatch)(data);
-    }
+  const handleValid = (data) => {
+    onValid(data);
     reset();
   };
 
-  // 🔄 ذخیرهٔ موقت هر تغییر در localStorage (۵۰۰ms delay)
-  useEffect(() => {
-    if (isDirty) {
-      const timer = setTimeout(() => {
-        localStorage.setItem("draftContact", JSON.stringify(currentContact));
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isDirty, currentContact]);
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
-      <div style={styles.inputGroup}>
-        <input {...register("firstName")} placeholder="نام" />
-        <span style={styles.error}>{errors.firstName?.message}</span>
-      </div>
+    <FormProvider {...methods}>
+      <form className={styles.form} onSubmit={handleSubmit(handleValid)}>
+        <div className={styles.row}>
+          <InputField name="firstName" label="نام" placeholder="مثلاً محبوبه" />
+          <InputField name="lastName" label="نام خانوادگی" placeholder="مثلاً نادری" />
+        </div>
 
-      <div style={styles.inputGroup}>
-        <input {...register("lastName")} placeholder="نام خانوادگی" />
-        <span style={styles.error}>{errors.lastName?.message}</span>
-      </div>
+        <div className={styles.row}>
+          <InputField name="email" type="email" label="ایمیل" placeholder="example@mail.com" />
+          <InputField name="phone" label="شماره تلفن" placeholder="0912..." />
+        </div>
 
-      <div style={styles.inputGroup}>
-        <input {...register("email")} placeholder="ایمیل" />
-        <span style={styles.error}>{errors.email?.message}</span>
-      </div>
+        <div className={styles.row}>
+          <InputField name="age" type="number" label="سن" placeholder="سن بر اساس سال" />
+        </div>
 
-      <div style={styles.inputGroup}>
-        <input {...register("phone")} placeholder="شماره" />
-        <span style={styles.error}>{errors.phone?.message}</span>
-      </div>
-
-      <button type="submit" style={styles.button}>
-        {editingId ? "ویرایش مخاطب" : "افزودن مخاطب"}
-      </button>
-    </form>
+        <div className={styles.actions}>
+          <AddButton type="submit">ذخیره مخاطب</AddButton>
+          <AddButton type="button" variant="danger" onClick={bulkDeleteHandler}>
+            حذف انتخاب‌شده‌ها ({selectedIds?.length || 0})
+          </AddButton>
+        </div>
+      </form>
+    </FormProvider>
   );
 }
-
-// 🌸 کمی استایل برای قشنگی
-const styles = {
-  form: { marginBottom: "2rem", display: "flex", flexDirection: "column", gap: "0.5rem" },
-  inputGroup: { display: "flex", flexDirection: "column" },
-  error: { color: "crimson", fontSize: "0.8rem" },
-  button: {
-    marginTop: "0.5rem",
-    background: "#005c55",
-    color: "white",
-    border: "none",
-    padding: "0.5rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};
+export default ContactForm
